@@ -30,7 +30,7 @@ int FeederSchedulerApp::main(const Poco::Util::Application::ArgVec& args)
     poco_assert(!args.empty());
     unsigned gpio = static_cast<unsigned>(std::stoul(args.front()));
 
-    Poco::AutoPtr<Poco::Util::TimerTask> feederTimerTaskPtr(new FeederTimerTask(gpio));
+    Poco::AutoPtr<FeederTimerTask> feederTimerTaskPtr(new FeederTimerTask(gpio));
 
     FeederMQTTClient feederMQTTClient(feederTimerTaskPtr);
 

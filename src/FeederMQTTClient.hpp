@@ -15,14 +15,16 @@
 class FeederMQTTClient
 {
 public:
-    explicit FeederMQTTClient(Poco::Util::TimerTask::Ptr& task);
+    explicit FeederMQTTClient(Poco::AutoPtr<FeederTimerTask>& task);
 
     void onMessageArrived(const IoT::MQTT::MessageArrivedEvent& event);
 private:
     Poco::Util::Timer timer_;
-    Poco::Util::TimerTask::Ptr& task_;
+    Poco::AutoPtr<FeederTimerTask>& task_;
 
     std::unique_ptr<IoT::MQTT::MQTTClient> client_;
+
+    void onFeedCompleted();
 };
 
 

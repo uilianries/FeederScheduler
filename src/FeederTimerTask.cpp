@@ -9,7 +9,13 @@
 
 FeederTimerTask::FeederTimerTask(unsigned gpio)
 : gpio_{gpio}
+, onFeed_{nullptr}
 {}
+
+void FeederTimerTask::delegateOnFeed(FeederTimerTask::onFeed callback)
+{
+    onFeed_ = callback;
+}
 
 void FeederTimerTask::run()
 {
@@ -18,6 +24,9 @@ void FeederTimerTask::run()
     Feeder feeder(gpio_);
     try {
         feeder.dispense();
+        if (onFeed_) {
+            onFeed_();
+        }
     } catch (const std::runtime_error& error) {
         Poco::Logger::root().error(error.what());
     }

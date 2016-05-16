@@ -17,7 +17,7 @@
 #include <IoT/MQTT/MQTTClientFactory.h>
 #include <Poco/Logger.h>
 
-FeederMQTTClient::FeederMQTTClient(Poco::Util::TimerTask::Ptr& task)
+FeederMQTTClient::FeederMQTTClient(Poco::AutoPtr<FeederTimerTask>& task)
 : task_{task}
 {
     IoT::MQTT::MQTTConnectOptions options;
@@ -28,6 +28,8 @@ FeederMQTTClient::FeederMQTTClient(Poco::Util::TimerTask::Ptr& task)
     arguments.options = std::move(options);
     arguments.serverUri = "m11.cloudmqtt.com:15347";
     arguments.clientId = "FeederSchedulerClient";
+
+    task_->delegateOnFeed(std::bind(&FeederMQTTClient::onFeedCompleted, this));
 
     client_ = IoT::MQTT::MQTTClientFactory::CreateMQTTClient<IoT::MQTT::MQTTClientFactory::ClientType::Paho>(arguments);
 
@@ -68,4 +70,9 @@ void FeederMQTTClient::onMessageArrived(const IoT::MQTT::MessageArrivedEvent& ev
 
     timer_.cancel(true);
     timer_.schedule(task_, localDateTime.timestamp(), parsedInterval);
+}
+
+void FeederMQTTClient::onFeedCompleted()
+{
+    client_->publish("smartaquarium/actuator/feeder/level", "", IoT::MQTT::QoS::AT_LEAST_ONCE);
 }

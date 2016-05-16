@@ -8,6 +8,7 @@
 #include <chrono>
 #include <thread>
 #include <Poco/Poco.h>
+#include <Poco/Logger.h>
 
 Feeder::Feeder(unsigned gpio)
  : gpio_{gpio}
@@ -25,7 +26,9 @@ void Feeder::dispense()
         throw std::runtime_error("Could not open " + oss.str());
     }
 
+    Poco::Logger::root().information("Food dispense started");
     ofs << "0";
     std::this_thread::sleep_for(std::chrono::seconds(2));
     ofs << "1";
+    Poco::Logger::root().information("Food dispense finished");
 }

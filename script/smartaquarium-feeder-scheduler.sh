@@ -18,7 +18,7 @@ LOGFILE="/var/log/${NAME}.log"
 DAEMON="/usr/local/bin/$NAME"
 
 # Path of your php script
-DAEMON_OPTS=""
+DAEMON_OPTS="66"
 
 START_OPTS="--start --background --make-pidfile --pidfile ${PIDFILE} --exec ${DAEMON} ${DAEMON_OPTS}"
 STOP_OPTS="--stop --pidfile ${PIDFILE}"

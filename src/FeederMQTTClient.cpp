@@ -74,5 +74,6 @@ void FeederMQTTClient::onMessageArrived(const IoT::MQTT::MessageArrivedEvent& ev
 
 void FeederMQTTClient::onFeedCompleted()
 {
-    client_->publish("smartaquarium/actuator/feeder/level", "", IoT::MQTT::QoS::AT_LEAST_ONCE);
+    Poco::Logger::root().information("Send feeder feedback to broker");
+    client_->publish("smartaquarium/actuator/feeder/level", "0", IoT::MQTT::QoS::AT_LEAST_ONCE);
 }

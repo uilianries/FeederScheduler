@@ -21,14 +21,16 @@ void Feeder::dispense()
     std::ostringstream oss;
     oss << "/sys/class/gpio/gpio" << gpio_ << "/value";
 
-    std::ofstream ofs(oss.str(), std::ofstream::out | std::ofstream::binary);
+    std::ofstream ofs(oss.str());
     if (!ofs) {
         throw std::runtime_error("Could not open " + oss.str());
     }
 
     Poco::Logger::root().information("Food dispense started");
     ofs << "0";
+    ofs.flush();
     std::this_thread::sleep_for(std::chrono::seconds(2));
     ofs << "1";
+    ofs.flush();
     Poco::Logger::root().information("Food dispense finished");
 }

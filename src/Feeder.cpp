@@ -21,7 +21,7 @@ void Feeder::dispense()
     std::ostringstream oss;
     oss << "/sys/class/gpio/gpio" << gpio_ << "/value";
 
-    std::ofstream ofs(oss.str());
+    std::ofstream ofs(oss.str(), std::ofstream::out | std::ofstream::binary);
     if (!ofs) {
         throw std::runtime_error("Could not open " + oss.str());
     }

@@ -12,10 +12,10 @@
 #include <Poco/LocalDateTime.h>
 #include <Poco/Format.h>
 #include <Poco/NumberFormatter.h>
-
+#include <Poco/Logger.h>
 #include <IoT/MQTT/MQTTConnectOptions.h>
 #include <IoT/MQTT/MQTTClientFactory.h>
-#include <Poco/Logger.h>
+
 
 FeederMQTTClient::FeederMQTTClient(Poco::AutoPtr<FeederTimerTask>& task)
 : task_{task}
@@ -57,7 +57,16 @@ void FeederMQTTClient::onMessageArrived(const IoT::MQTT::MessageArrivedEvent& ev
     auto parsedInterval = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::hours(interval)).count();
 
     const Poco::LocalDateTime now;
-    Poco::LocalDateTime localDateTime(now.year(), now.month(), now.day(), time_trigger);
+    auto dispense_day = now.day();
+
+    Poco::LocalDateTime localDateTime(now.year(), now.month(), dispense_day, time_trigger);
+
+    if (!dispense_history_.empty()) {
+        const auto &last_dispense = *dispense_history_.rbegin();
+        if (last_dispense.day() == now.day() && time_trigger <= static_cast<unsigned>(now.hour())) {
+            localDateTime += Poco::Timespan(0, interval, 0, 0, 0);
+        }
+    }
 
     std::string formattedString;
     Poco::format(formattedString, "Food dispense scheduled to: %d/%s/%s - %s:%s:%s",
@@ -74,6 +83,8 @@ void FeederMQTTClient::onMessageArrived(const IoT::MQTT::MessageArrivedEvent& ev
 
 void FeederMQTTClient::onFeedCompleted()
 {
+    dispense_history_.emplace();
+
     Poco::Logger::root().information("Send feeder feedback to broker");
     client_->publish("smartaquarium/actuator/feeder/level", "0", IoT::MQTT::QoS::AT_LEAST_ONCE);
 }

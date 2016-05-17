@@ -11,6 +11,9 @@
 #include <IoT/MQTT/MQTTClient.h>
 
 #include "FeederTimerTask.hpp"
+#include <set>
+#include <Poco/DateTime.h>
+#include <Poco/LocalDateTime.h>
 
 class FeederMQTTClient
 {
@@ -25,6 +28,8 @@ private:
     std::unique_ptr<IoT::MQTT::MQTTClient> client_;
 
     void onFeedCompleted();
+
+    std::set<Poco::LocalDateTime> dispense_history_;
 };
 
 
